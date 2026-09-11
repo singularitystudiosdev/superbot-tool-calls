@@ -128,13 +128,18 @@ a { color: inherit; }
 .agent .bar { margin-top: 12px; height: 6px; border-radius: 3px; background: #262626; overflow: hidden; }
 .agent .bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--storm-x); }
 .agent .p-sub { margin-top: 6px; font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+/* ---------- the rescue popup (gpt-refusal-superbot-824cef28 #popup), rendered in place here (the ad pins it to the frame bottom-right) ---------- */
+.popup { position: relative; width: 420px; max-width: 100%; padding: 22px 22px 20px; border-radius: 22px; border: 3px solid transparent; background: linear-gradient(#000, #000) padding-box, var(--storm) border-box; box-shadow: 0 30px 70px rgba(0,0,0,.6), 0 0 40px rgba(106,31,216,.25); transform-origin: 100% 100%; font-family: var(--ui); }
+.popup .p-head { display: flex; align-items: center; gap: 12px; font-size: 29px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
+.popup .p-head img { width: 34px; height: 34px; }
+.popup .chatbtn { position: relative; margin-top: 16px; display: block; padding: 14px 18px; border-radius: 18px; background: #fff; color: #000; font-size: 24px; font-weight: 700; text-align: center; transform-origin: 50% 50%; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
 </style>
 </head>
 <body>
 <header class="page-top">
   <div class="brand"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div>
   <h1>The <span class="grad">tool calls</span>, on their own.</h1>
-  <p>The cards superbot posts in chat while it works. Lifted 1:1 from the three agent ad spots on the <a href="https://singularitystudiosdev.github.io/superbot-ad-gallery/">ad gallery</a>. Each one loops live below. Open <b>Source</b> for the exact markup, CSS and the render(t) driver that animates it.</p>
+  <p>The cards superbot posts in chat while it works. Lifted 1:1 from the three agent ad spots (and the rescue popup from the gpt-refusal spot) on the <a href="https://singularitystudiosdev.github.io/superbot-ad-gallery/">ad gallery</a>. Each one loops live below. Open <b>Source</b> for the exact markup, CSS and the render(t) driver that animates it.</p>
 </header>
 
 <main class="grid" id="grid"></main>
@@ -170,6 +175,9 @@ a { color: inherit; }
 <div class="agent"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div><div class="p-line"><i></i>entering your records<b data-el="n">0 records</b></div><div class="p-sub"><span data-el="f">0 fields</span><span data-el="r">0 fields / min</span></div></div>
 </template>
 
+<template id="tpl-status-cando">
+<div class="popup"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div>
+</template>
 <script>
 // ---------- helpers, verbatim from the ads' render loops ----------
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -283,12 +291,24 @@ const COMPONENTS = [
       this.$.n.textContent = `${saved} record${saved === 1 ? '' : 's'}`; this.$.f.textContent = `${fields} fields`; this.$.r.textContent = `${t > 1.1 ? Math.round(fields / el * 60) : 0} fields / min`;
     },
   },
+  {
+    id: 'status-cando', title: 'Status card · superbot can do it!', sub: 'the rescue popup: pops in from the corner, then the chat press', from: 'gpt-refusal', loop: 5, css: ['popup'],
+    build(root) { this.$ = q(root); this.root = root; },
+    render(t) {
+      const outBack = (p) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+      const lerp = (a, b, p) => a + (b - a) * p;
+      const pp = seg(t, 0.3, 0.75), press = t >= 3.2 && t < 3.35 ? 1 : t >= 3.35 ? 1 - seg(t, 3.35, 3.53) : 0;
+      this.root.style.opacity = String(clamp01(pp * 2));
+      this.root.style.transform = `translate(${((1 - outBack(pp)) * 30).toFixed(1)}px, ${((1 - outBack(pp)) * 60).toFixed(1)}px) scale(${lerp(0.9, 1, outBack(pp)).toFixed(3)})`;
+      this.$.btn.style.transform = `scale(${(1 - 0.05 * press).toFixed(3)})`;
+    },
+  },
 ];
 
 // ---------- the page: a tile per component, each on its own loop clock with a replay and a source view ----------
 const CSS_BLOCKS = {};
 for (const m of document.querySelector('style').textContent.matchAll(/\/\* ---------- ([^\n]*?) ---------- \*\/\n([\s\S]*?)(?=\n\/\* ---------- |$)/g)) CSS_BLOCKS[m[1]] = m[2].trim();
-const cssFor = (keys) => ['the hub\'s own message + card rules (hub-boot-3.css), the base every widget sits on', ...keys.map((k) => ({ voice: 'voice sample + wiring (agent-voice-superbot-59d77e34)', analysis: 'job analysis (agent-dataentry-superbot-59d77e34)', agent: Object.keys(CSS_BLOCKS).find((n) => n.startsWith('the superbot status card')) }[k]))].map((n) => `/* ${n} */\n${CSS_BLOCKS[n] || ''}`).join('\n\n');
+const cssFor = (keys) => ['the hub\'s own message + card rules (hub-boot-3.css), the base every widget sits on', ...keys.map((k) => ({ voice: 'voice sample + wiring (agent-voice-superbot-59d77e34)', analysis: 'job analysis (agent-dataentry-superbot-59d77e34)', agent: Object.keys(CSS_BLOCKS).find((n) => n.startsWith('the superbot status card')), popup: Object.keys(CSS_BLOCKS).find((n) => n.startsWith('the rescue popup')) }[k]))].map((n) => `/* ${n} */\n${CSS_BLOCKS[n] || ''}`).join('\n\n');
 const grid = document.getElementById('grid');
 for (const c of COMPONENTS) {
   const tile = document.createElement('section'); tile.className = 'tile'; tile.dataset.id = c.id;
