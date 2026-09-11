@@ -40,7 +40,7 @@ a { color: inherit; }
 .tile .th b { font-size: 15px; white-space: nowrap; }
 .tile .th small { flex: 1 1 auto; color: var(--muted); font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tile .th .from { margin-left: auto; font: 500 12px/20px var(--font-mono); color: var(--muted); padding: 0 8px; border-radius: 6px; background: var(--raised); border: 1px solid var(--line); white-space: nowrap; }
-.tile .stage { padding: 22px 20px; min-height: 250px; display: grid; place-items: center; background: #0a0a0a; }
+.tile .stage { padding: 22px 20px; min-height: 250px; display: grid; place-items: center; justify-items: center; background: #0a0a0a; overflow: hidden; }
 .tile .tf { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); }
 .tile .tf .btn { height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--raised); color: var(--fg); font: 600 13px/30px var(--ui); cursor: pointer; }
 .tile .tf .btn:hover { border-color: var(--accent); }
@@ -129,10 +129,10 @@ a { color: inherit; }
 .agent .bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--storm-x); }
 .agent .p-sub { margin-top: 6px; font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
 /* ---------- the rescue popup (gpt-refusal-superbot-824cef28 #popup), rendered in place here (the ad pins it to the frame bottom-right) ---------- */
-.popup { position: relative; width: 420px; max-width: 100%; padding: 22px 22px 20px; border-radius: 22px; border: 3px solid transparent; background: linear-gradient(#000, #000) padding-box, var(--storm) border-box; box-shadow: 0 30px 70px rgba(0,0,0,.6), 0 0 40px rgba(106,31,216,.25); transform-origin: 100% 100%; font-family: var(--ui); }
-.popup .p-head { display: flex; align-items: center; gap: 12px; font-size: 29px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
-.popup .p-head img { width: 34px; height: 34px; }
-.popup .chatbtn { position: relative; margin-top: 16px; display: block; padding: 14px 18px; border-radius: 18px; background: #fff; color: #000; font-size: 24px; font-weight: 700; text-align: center; transform-origin: 50% 50%; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.popup { position: relative; width: 340px; max-width: 100%; margin: 0 auto; justify-self: center; padding: 20px 22px 18px; border-radius: 22px; border: 3px solid transparent; background: linear-gradient(#000, #000) padding-box, var(--storm) border-box; box-shadow: 0 30px 70px rgba(0,0,0,.6), 0 0 40px rgba(106,31,216,.25); transform-origin: 50% 50%; font-family: var(--ui); }
+.popup .p-head { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
+.popup .p-head img { width: 30px; height: 30px; }
+.popup .chatbtn { position: relative; margin: 14px auto 0; display: block; width: 160px; padding: 11px 18px; border-radius: 16px; background: #fff; color: #000; font-size: 20px; font-weight: 700; text-align: center; transform-origin: 50% 50%; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
 </style>
 </head>
 <body>
@@ -299,7 +299,7 @@ const COMPONENTS = [
       const lerp = (a, b, p) => a + (b - a) * p;
       const pp = seg(t, 0.3, 0.75), press = t >= 3.2 && t < 3.35 ? 1 : t >= 3.35 ? 1 - seg(t, 3.35, 3.53) : 0;
       this.root.style.opacity = String(clamp01(pp * 2));
-      this.root.style.transform = `translate(${((1 - outBack(pp)) * 30).toFixed(1)}px, ${((1 - outBack(pp)) * 60).toFixed(1)}px) scale(${lerp(0.9, 1, outBack(pp)).toFixed(3)})`;
+      this.root.style.transform = `translateY(${((1 - outBack(pp)) * 24).toFixed(1)}px) scale(${lerp(0.9, 1, outBack(pp)).toFixed(3)})`;
       this.$.btn.style.transform = `scale(${(1 - 0.05 * press).toFixed(3)})`;
     },
   },
