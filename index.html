@@ -168,16 +168,30 @@ a { color: inherit; }
 .popup.v-flowglow::before { content: ""; background: linear-gradient(90deg, var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)); background-size: 300% 100%; filter: blur(24px); animation: popup-flow 3s linear infinite, popup-breathe 2.4s ease-in-out infinite; }
 @keyframes popup-breathe { 0%, 100% { opacity: .3; } 50% { opacity: .7; } }
 @media (prefers-reduced-motion: reduce) { .popup, .popup::before { animation: none !important; } }
+/* ---------- Prompt it: the live slot at the screen's bottom-right, like the ad ---------- */
+.prompt-row { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+.prompt-row .btn { height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--raised); color: var(--fg); font: 700 14px/38px var(--ui); cursor: pointer; }
+.prompt-row .btn.go { background: #fff; border-color: #fff; color: #000; }
+.prompt-row .btn:hover { border-color: var(--accent); }
+.prompt-row select { height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--raised); color: var(--fg); font: 600 14px var(--ui); }
+.prompt-row small { color: var(--muted); font-size: 13px; }
+#live { position: fixed; right: 44px; bottom: 44px; z-index: 100; display: none; }
+#live.on { display: block; }
+#live .popup { cursor: default; }
+#live .chatbtn { cursor: pointer; }
+@media (max-width: 640px) { #live { right: 16px; bottom: 16px; left: 16px; } #live .popup { width: auto; } }
 </style>
 </head>
 <body>
 <header class="page-top">
   <div class="brand"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div>
   <h1>The <span class="grad">tool calls</span>, on their own.</h1>
+  <div class="prompt-row"><button class="btn go" id="prompt-go">Prompt it on screen</button><select id="prompt-pick"></select><small>pops the card in at the bottom-right, like the ad. Its chat button or Esc dismisses it.</small></div>
   <p>The cards superbot posts in chat while it works. Lifted 1:1 from the three agent ad spots (and the rescue popup from the gpt-refusal spot) on the <a href="https://singularitystudiosdev.github.io/superbot-ad-gallery/">ad gallery</a>. Each one loops live below. Open <b>Source</b> for the exact markup, CSS and the render(t) driver that animates it.</p>
 </header>
 
 <main class="grid" id="grid"></main>
+<div id="live" aria-live="polite"></div>
 
 <!-- ============ the components: one <template> each, markup exactly as the ads post it ============ -->
 <template id="tpl-voice">
@@ -361,7 +375,7 @@ const cssFor = (keys) => ['the hub\'s own message + card rules (hub-boot-3.css),
 const grid = document.getElementById('grid');
 for (const c of COMPONENTS) {
   const tile = document.createElement('section'); tile.className = 'tile'; tile.dataset.id = c.id;
-  tile.innerHTML = `<div class="th"><b>${c.title}</b><small>${c.sub}</small><span class="from">${c.from}</span></div><div class="stage"></div><div class="tf"><button class="btn" data-act="replay">Replay</button><button class="btn" data-act="src">Source</button><span class="t">0.0s</span></div><div class="src"><div class="tabs"><span class="on" data-tab="html">HTML</span><span data-tab="css">CSS</span><span data-tab="js">render(t)</span></div><pre></pre></div>`;
+  tile.innerHTML = `<div class="th"><b>${c.title}</b><small>${c.sub}</small><span class="from">${c.from}</span></div><div class="stage"></div><div class="tf"><button class="btn" data-act="replay">Replay</button><button class="btn" data-act="src">Source</button>${c.id.startsWith('status-cando') ? '<button class="btn" data-act="pop">Prompt it</button>' : ''}<span class="t">0.0s</span></div><div class="src"><div class="tabs"><span class="on" data-tab="html">HTML</span><span data-tab="css">CSS</span><span data-tab="js">render(t)</span></div><pre></pre></div>`;
   const tpl = document.getElementById('tpl-' + c.id).content.cloneNode(true);
   const stage = tile.querySelector('.stage'); stage.appendChild(tpl);
   const root = stage.firstElementChild;
@@ -373,6 +387,7 @@ for (const c of COMPONENTS) {
   const showTab = (k) => { tabs.forEach((s) => s.classList.toggle('on', s.dataset.tab === k)); pre.textContent = src[k]; };
   showTab('html');
   tabs.forEach((s) => s.addEventListener('click', () => showTab(s.dataset.tab)));
+  tile.querySelector('[data-act="pop"]')?.addEventListener('click', () => promptIt(c.id));
   tile.querySelector('[data-act="src"]').addEventListener('click', (e) => { tile.querySelector('.src').classList.toggle('on'); e.currentTarget.classList.toggle('on'); });
   let t0 = performance.now();
   tile.querySelector('[data-act="replay"]').addEventListener('click', () => { t0 = performance.now(); });
@@ -381,6 +396,38 @@ for (const c of COMPONENTS) {
   requestAnimationFrame(frame);
   grid.appendChild(tile);
 }
+
+// ---------- Prompt it: the chosen variant, on screen ----------
+const live = document.getElementById('live'), pick = document.getElementById('prompt-pick');
+const POPUPS = COMPONENTS.filter((c) => c.id.startsWith('status-cando'));
+POPUPS.forEach((c) => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.title.replace('superbot can do it! · ', ''); pick.appendChild(o); });
+const outBackP = (p) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+let liveAnim = null;
+function dismiss(then) {
+  const card = live.firstElementChild;
+  if (!card) { then && then(); return; }
+  liveAnim?.cancel();
+  const a = card.animate([{ opacity: 1, transform: 'translate(0,0) scale(1)' }, { opacity: 0, transform: 'translate(20px, 40px) scale(.94)' }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
+  a.finished.then(() => { live.innerHTML = ''; live.classList.remove('on'); then && then(); }).catch(() => {});
+}
+function promptIt(id) {
+  pick.value = id;
+  dismiss(() => {
+    const card = document.getElementById('tpl-' + id).content.firstElementChild.cloneNode(true);
+    card.querySelectorAll('[data-el]').forEach((el) => { el.id = 'live-' + el.dataset.el; });
+    live.appendChild(card); live.classList.add('on');
+    // the ad's pop-in from the corner: outBack over 450ms, 30px/60px in, .9 → 1
+    const frames = []; for (let i = 0; i <= 20; i++) { const p = outBackP(i / 20); frames.push({ opacity: Math.min(1, (i / 20) * 2), transform: `translate(${((1 - p) * 30).toFixed(1)}px, ${((1 - p) * 60).toFixed(1)}px) scale(${(0.9 + 0.1 * p).toFixed(3)})` }); }
+    liveAnim = card.animate(frames, { duration: 450, easing: 'linear', fill: 'forwards' });
+    const btn = card.querySelector('.chatbtn');
+    btn.addEventListener('click', () => {
+      btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(.95)' }, { transform: 'scale(1)' }], { duration: 180, easing: 'ease-out' }).finished.then(() => dismiss()).catch(() => {});
+    });
+  });
+}
+document.getElementById('prompt-go').addEventListener('click', () => promptIt(pick.value));
+pick.addEventListener('change', () => { if (live.classList.contains('on')) promptIt(pick.value); });
+addEventListener('keydown', (e) => { if (e.key === 'Escape') dismiss(); });
 </script>
 </body>
 </html>
