@@ -328,8 +328,8 @@ const ENTRANCES = {
   settle: { name: 'Settle from above', dur: 0.45, at: (p) => { const e = outQuintE(p); return { opacity: p, transform: `scale(${(1.15 - 0.15 * e).toFixed(3)})` }; } },
 };
 let ENTRANCE = 'rise';
-// the exit, shared by every entrance: the card rises 40px and fades over 0.3s
-const EXIT = { dur: 0.3, at: (p) => { const e = 1 - Math.pow(1 - p, 3); return { opacity: 1 - p, transform: `translateY(${(-e * 40).toFixed(1)}px)` }; } };
+// the exit, shared by every entrance: the card falls back down 40px and fades over 0.3s (the rise in, reversed)
+const EXIT = { dur: 0.3, at: (p) => { const e = p * p; return { opacity: 1 - p, transform: `translateY(${(e * 40).toFixed(1)}px)` }; } };
 const POPUP = {
   build(root) { this.$ = q(root); this.root = root; this.root.style.transformOrigin = '50% 100%'; },
   render(t) {
@@ -340,7 +340,7 @@ const POPUP = {
     this.$.btn.style.transform = `scale(${(1 - 0.05 * press).toFixed(3)})`;
   },
 };
-for (const [k, title, sub] of [['glow', 'superbot can do it! · soft glow', 'rises in, the chat press, rises out']])
+for (const [k, title, sub] of [['glow', 'superbot can do it! · soft glow', 'rises in, the chat press, falls out']])
   COMPONENTS.push({ id: 'status-cando-' + k, title, sub, from: 'gpt-refusal', loop: 4.6, css: ['popup'], build: POPUP.build, render: POPUP.render });
 
 // ---------- the page: a tile per component, each on its own loop clock with a replay and a source view ----------
