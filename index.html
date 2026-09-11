@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>superbot tool calls — the in-chat cards from the agent ads</title>
+<link rel="icon" href="assets/mark-clean.svg" type="image/svg+xml"/>
+<meta name="description" content="The tool-call cards superbot posts in chat, lifted from the agent-workspace, agent-voice and agent-dataentry ad spots: voice sample, wiring, job analysis and the superbot status card. Each one loops live, with its markup, CSS and driver beside it."/>
+<style>
+/* ---------- tokens: the site's own ladder (site.css :root) ---------- */
+:root {
+  color-scheme: dark;
+  --bg: #000000; --card: #0d0d0d; --raised: #181818; --line: #262626; --surface: #181818;
+  --fg: #ececec; --secondary: #cfcfcf; --muted: #9a9a9a; --ok: #34d399; --warn: #d9b86b;
+  --accent: #2b6bff; --accent-ink: #ffffff; --tile-bg: #000000;
+  --storm-0: #00e5c3; --storm-1: #2b6bff; --storm-2: #6a1fd8; --storm-3: #c026d3; --storm-4: #ff3d9a;
+  --storm: linear-gradient(135deg, var(--storm-0) 0%, var(--storm-1) 25%, var(--storm-2) 50%, var(--storm-3) 75%, var(--storm-4) 100%);
+  --storm-x: linear-gradient(90deg, var(--storm-1) 0%, var(--storm-2) 45%, var(--storm-3) 75%, var(--storm-4) 100%);
+  --font-ui: "SF Pro Rounded", "SF Pro Display", -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --ui: var(--font-ui);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #000; color: var(--fg); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+
+/* ---------- the page ---------- */
+.top { max-width: 1240px; margin: 0 auto; padding: 56px 24px 8px; }
+.top .brand { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.top .brand img { width: 26px; height: 26px; }
+.top .brand .gg { color: var(--muted); font-weight: 600; }
+.top h1 { margin: 22px 0 8px; font-size: 44px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+.top h1 .grad { background: var(--storm-x); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.top p { margin: 0; max-width: 62ch; color: var(--muted); font-size: 17px; line-height: 26px; }
+.top p a { color: var(--secondary); }
+.grid { max-width: 1240px; margin: 0 auto; padding: 28px 24px 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(580px, 1fr)); gap: 22px; }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } .top h1 { font-size: 32px; } }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; }
+.tile .th { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.tile .th b { font-size: 15px; white-space: nowrap; }
+.tile .th small { flex: 1 1 auto; color: var(--muted); font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile .th .from { margin-left: auto; font: 500 12px/20px var(--font-mono); color: var(--muted); padding: 0 8px; border-radius: 6px; background: var(--raised); border: 1px solid var(--line); white-space: nowrap; }
+.tile .stage { padding: 22px 20px; min-height: 250px; display: grid; place-items: center; background: #0a0a0a; }
+.tile .tf { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.tile .tf .btn { height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--raised); color: var(--fg); font: 600 13px/30px var(--ui); cursor: pointer; }
+.tile .tf .btn:hover { border-color: var(--accent); }
+.tile .tf .btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tile .tf .t { margin-left: auto; font: 500 12px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.src { display: none; border-top: 1px solid var(--line); background: #000; }
+.src.on { display: block; }
+.src .tabs { display: flex; gap: 2px; padding: 8px 12px 0; }
+.src .tabs span { padding: 6px 10px; border-radius: 6px 6px 0 0; font: 600 12px var(--ui); color: var(--muted); cursor: pointer; }
+.src .tabs span.on { color: var(--fg); background: var(--raised); }
+.src pre { margin: 0; max-height: 380px; overflow: auto; padding: 12px 14px; font: 11.5px/17px var(--font-mono); color: var(--secondary); white-space: pre; background: var(--raised); }
+/* the hub lane the cards live in: the app's 11px/15px miniature, zoomed so it reads on a page */
+.lane { zoom: 1.45; font: 11px/15px var(--ui); color: var(--fg); width: 362px; max-width: 100%; }
+.lane .msg { opacity: 1; }
+.card { gap: 0; }
+/* ---------- the hub's own message + card rules (hub-boot-3.css), the base every widget sits on ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; display: grid; gap: 3px; }
+.msg { display: flex; gap: 8px; opacity: 0; }
+.avatar { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--c, #facc15); color: var(--ink); font: 700 10px/24px var(--ui); text-align: center; }
+.avatar.sb { background: var(--tile-bg, #000000); box-shadow: inset 0 0 0 1px var(--line); font-size: 0; overflow: hidden; display: grid; place-items: center; }
+.avatar.sb img { width: 62%; height: 62%; display: block; }
+.m-main { min-width: 0; flex: 1; display: grid; gap: 5px; }
+.m-head { display: flex; gap: 6px; align-items: baseline; }
+.m-name { font-weight: 700; }
+.m-when { font-size: .82em; color: var(--muted); }
+.app { padding: 0 4px; border-radius: 3px; background: var(--accent); color: var(--accent-ink); font: 700 8px/12px var(--ui); letter-spacing: .04em; }
+.m-text { font-size: 1em; line-height: 15px; }
+/* ---------- voice sample + wiring (agent-voice-superbot-59d77e34) ---------- */
+.m-main .card { margin-top: 3px; max-width: 340px; padding: 7px 9px; gap: 4px; }
+.card .c-head { display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--fg); }
+.card .c-head small { margin-left: auto; font: 500 .91em/12px var(--font-mono); color: var(--muted); }
+.vc-line { color: var(--secondary); font-style: italic; line-height: 14px; }
+.vc-line .w { color: var(--muted); } .vc-line .w.on { color: var(--fg); }
+.vc-wave { display: flex; align-items: center; gap: 2px; height: 26px; }
+.vc-wave i { flex: 1; height: 3px; border-radius: 2px; background: var(--accent); opacity: .35; }
+.vc-foot { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.vc-mic { width: 18px; height: 18px; border-radius: 50%; background: var(--raised); border: 1px solid var(--line); display: grid; place-items: center; color: var(--fg); position: relative; }
+.vc-mic svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.vc-mic.rec { background: #e5484d; border-color: #e5484d; color: #fff; }
+.vc-mic.rec::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid #e5484d; opacity: var(--ring, 0); }
+.vc-mic.done { background: rgba(52,211,153,.14); border-color: var(--ok); color: var(--ok); }
+.wc-row { display: flex; align-items: center; gap: 6px; min-height: 18px; }
+.wc-ic { width: 16px; height: 16px; border-radius: 4px; display: grid; place-items: center; font: 700 8px/16px var(--ui); color: #fff; flex: none; }
+.wc-row .n { color: var(--fg); white-space: nowrap; } .wc-row .n small { color: var(--muted); margin-left: 4px; font-size: .91em; }
+.wc-row code { margin-left: auto; font: .85em/14px var(--font-mono); color: var(--muted); padding: 0 5px; border-radius: 3px; background: var(--raised); border: 1px solid var(--line); }
+.wc-row .st { flex: none; width: 34px; text-align: right; font-size: .82em; color: var(--muted); }
+.wc-row .st.ok { color: var(--ok); }
+.wc-row .st .d { display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: var(--muted); margin-left: 2px; }
+
+
+/* ---------- job analysis (agent-dataentry-superbot-59d77e34) ---------- */
+.m-main .card { margin-top: 4px; max-width: 362px; padding: 9px 11px 10px; gap: 0; border-radius: 8px; }
+.card .c-head { display: flex; align-items: baseline; gap: 8px; font-weight: 700; color: var(--fg); padding-bottom: 7px; }
+.card .c-head small { margin-left: auto; font-size: .91em; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+.an-scan { display: grid; grid-template-columns: 1fr 34px; align-items: center; gap: 6px 8px; color: var(--muted); font-size: .91em; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.an-scan .bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--raised); overflow: hidden; }
+.an-scan .bar i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--accent); }
+.an-scan b { text-align: right; color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+#an-rows { display: grid; gap: 1px; padding: 6px 0 7px; border-bottom: 1px solid var(--line); }
+.an-row { display: grid; grid-template-columns: minmax(0, 1fr) 44px 66px; align-items: center; gap: 8px; height: 19px; opacity: 0; }
+.an-row .n { color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.an-row .f { color: var(--muted); font-size: .91em; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.an-row .tag { display: flex; align-items: center; justify-content: center; gap: 4px; height: 16px; border-radius: 4px; font-size: .82em; font-weight: 600; background: var(--raised); color: var(--muted); }
+.an-row .tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .9; }
+.an-row .tag.auto { background: rgba(52,211,153,.12); color: #34d399; }
+.an-row .tag.keep { background: rgba(217,184,107,.12); color: var(--warn); }
+.an-sum { display: grid; gap: 5px; padding-top: 8px; color: var(--muted); font-size: .91em; opacity: 0; }
+.an-sum .top { display: flex; align-items: baseline; justify-content: space-between; }
+.an-sum .big { font-size: 1.2em; font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; }
+.an-sum b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.an-sum .bar { height: 4px; border-radius: 2px; background: var(--raised); overflow: hidden; }
+.an-sum .bar i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--storm-x); }
+
+
+/* ---------- the superbot status card (agent-workspace / agent-voice / agent-dataentry), rendered in place here (the ads pin it to the frame bottom-right) ---------- */
+.agent { position: relative; width: 380px; max-width: 100%; padding: 18px 20px 16px; border-radius: 22px; border: 3px solid transparent; background: linear-gradient(#000, #000) padding-box, var(--storm) border-box; box-shadow: 0 30px 70px rgba(0,0,0,.35), 0 0 40px rgba(106,31,216,.25); font-family: var(--ui); color: #fff; }
+.agent .p-head { display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+.agent .p-head img { width: 32px; height: 32px; }
+.agent .p-head .gg { color: var(--muted); font-weight: 600; }
+.agent .p-line { margin-top: 10px; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; color: var(--secondary); }
+.agent .p-line i { width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px #34d399; }
+.agent .p-line b { color: #fff; font-variant-numeric: tabular-nums; margin-left: auto; }
+.agent .bar { margin-top: 12px; height: 6px; border-radius: 3px; background: #262626; overflow: hidden; }
+.agent .bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--storm-x); }
+.agent .p-sub { margin-top: 6px; font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div>
+  <h1>The <span class="grad">tool calls</span>, on their own.</h1>
+  <p>The cards superbot posts in chat while it works, lifted 1:1 from the three agent ad spots on the <a href="https://singularitystudiosdev.github.io/superbot-ad-gallery/">ad gallery</a>. Each one loops live below. Open <b>Source</b> for the exact markup, CSS and the render(t) driver that animates it.</p>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<!-- ============ the components: one <template> each, markup exactly as the ads post it ============ -->
+<template id="tpl-voice">
+<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">9:02 AM</span></div><div class="m-text">Sure. Tap the mic and read the line below so I can learn your voice.</div>
+  <div class="card" data-el="vcard"><div class="c-head">Voice sample<small data-el="vc-time">0:00</small></div><div class="vc-line" data-el="vc-line"></div><div class="vc-wave" data-el="vc-wave"></div><div class="vc-foot"><span class="vc-mic" data-el="vc-mic"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg></span><span data-el="vc-status">tap the mic and read the line</span></div></div>
+</div></div></div>
+</template>
+
+<template id="tpl-wiring">
+<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">9:03 AM</span></div><div class="m-text">Great, I will wire into your system directly.</div>
+  <div class="card" data-el="wcard"><div class="c-head">Wiring into your system<small data-el="wc-n">0/4</small></div><div data-el="wc-rows"></div></div>
+</div></div></div>
+</template>
+
+<template id="tpl-analysis">
+<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">9:02 AM</span></div><div class="m-text">On it. Let me look at how you actually spend the day.</div>
+  <div class="card" data-el="acard"><div class="c-head">Analyzing your job<small data-el="an-n">0 tasks</small></div><div class="an-scan"><span data-el="an-lab">watching 2 weeks of activity</span><b data-el="an-pct">0%</b><span class="bar"><i data-el="an-bar"></i></span></div><div data-el="an-rows"></div><div class="an-sum" data-el="an-sum"><div class="top"><span class="big" data-el="an-share">0% automatable</span><span><b data-el="an-auto">0</b> of <b data-el="an-tot">0</b> tasks</span></div><span class="bar"><i data-el="an-sbar"></i></span></div></div>
+</div></div></div>
+</template>
+
+<template id="tpl-status-mail">
+<div class="agent"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div><div class="p-line"><i></i>replying in your style<b data-el="n">0 / 4</b></div><div class="bar"><i data-el="bar"></i></div></div>
+</template>
+
+<template id="tpl-status-calls">
+<div class="agent"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div><div class="p-line"><i></i>on your calls, in your voice<b data-el="n">0 calls</b></div></div>
+</template>
+
+<template id="tpl-status-records">
+<div class="agent"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div><div class="p-line"><i></i>entering your records<b data-el="n">0 records</b></div><div class="p-sub"><span data-el="f">0 fields</span><span data-el="r">0 fields / min</span></div></div>
+</template>
+
+<script>
+// ---------- helpers, verbatim from the ads' render loops ----------
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+const seg = (t, a, b) => clamp01((t - a) / (b - a));
+const outCubic = (p) => 1 - Math.pow(1 - p, 3);
+const rnd = (i, k = 0) => { const x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const q = (root) => new Proxy({}, { get: (_, k) => root.querySelector(`[data-el="${k}"]`) });
+
+// ---------- the components: build(root) prepares the DOM once, render(t) is a pure function of loop time ----------
+const COMPONENTS = [
+  {
+    id: 'voice', title: 'Voice sample', sub: 'the mic prompt: idle, listening, captured', from: 'agent-voice', loop: 7.5,
+    css: ['voice'],
+    build(root) {
+      const $ = q(root), LINE = 'Thanks for calling, this is Dan. How can I help you today?';
+      $['vc-line'].innerHTML = '“' + LINE.split(' ').map((w) => `<span class="w">${esc(w)}</span>`).join(' ') + '”';
+      for (let i = 0; i < 28; i++) $['vc-wave'].appendChild(document.createElement('i'));
+      this.words = [...root.querySelectorAll('.w')]; this.bars = [...$['vc-wave'].children]; this.$ = $;
+    },
+    render(t) {
+      const { $, words, bars } = this, B = { rec: 1.0, recEnd: 3.9, done: 4.1 };
+      const recording = t >= B.rec && t < B.recEnd, captured = t >= B.done;
+      $['vc-mic'].className = 'vc-mic' + (recording ? ' rec' : captured ? ' done' : '');
+      $['vc-mic'].style.setProperty('--ring', recording ? (0.6 * (1 - ((t - B.rec) % 0.9) / 0.9)).toFixed(2) : '0');
+      const u = clamp01((t - B.rec) / (B.recEnd - B.rec));
+      words.forEach((w, i) => w.classList.toggle('on', t >= B.rec && i < Math.ceil(u * words.length + 0.001)));
+      bars.forEach((b, i) => {
+        const h = recording ? 4 + 20 * Math.abs(Math.sin(t * 11 + i * 0.7)) * (0.45 + 0.55 * Math.abs(Math.sin(t * 2.7 + i * 0.31))) : captured ? 4 + 10 * rnd(i, 3) : 3;
+        b.style.height = `${h.toFixed(1)}px`; b.style.opacity = String(recording ? 1 : captured ? 0.35 : 0.12);
+      });
+      $['vc-time'].textContent = fmt(recording ? t - B.rec : captured ? B.recEnd - B.rec : 0);
+      $['vc-status'].textContent = recording ? 'listening…' : captured ? (t < B.done + 0.5 ? 'voice captured ✓' : 'voice captured ✓ · clone ready') : 'tap the mic and read the line';
+    },
+  },
+  {
+    id: 'wiring', title: 'Wiring into your system', sub: 'each tool connects, then reads wired', from: 'agent-voice', loop: 6,
+    css: ['voice'],
+    build(root) {
+      const $ = q(root);
+      this.WIRE = [
+        { n: 'Phone system', s: 'Twilio', c: '#f22f46', ic: 'T', call: 'twilio.connect()' },
+        { n: 'Helpdesk', s: 'Zendesk', c: '#03363d', ic: 'Z', call: 'zendesk.auth()' },
+        { n: 'CRM', s: 'HubSpot', c: '#ff7a59', ic: 'H', call: 'hubspot.sync()' },
+        { n: 'Calendar', s: 'Google', c: '#1a73e8', ic: 'G', call: 'calendar.link()' },
+      ];
+      this.rows = this.WIRE.map((w) => { const r = document.createElement('div'); r.className = 'wc-row'; r.innerHTML = `<span class="wc-ic" style="background:${w.c}">${w.ic}</span><span class="n">${w.n}<small>${w.s}</small></span><code>${w.call}</code><span class="st"></span>`; $['wc-rows'].appendChild(r); return r; });
+      this.$ = $;
+    },
+    render(t) {
+      const AT = [0.6, 1.2, 1.8, 2.4], DUR = 0.55; let wired = 0;
+      this.rows.forEach((r, i) => {
+        const at = AT[i], st = r.querySelector('.st'), p = seg(t, at, at + 0.25);
+        r.style.opacity = String(p); r.style.transform = `translateY(${((1 - outCubic(p)) * 4).toFixed(1)}px)`;
+        const on = t >= at + DUR; if (on) wired++;
+        st.className = 'st' + (on ? ' ok' : ''); st.style.width = '60px'; st.style.textAlign = 'right';
+        if (t < at) st.innerHTML = '';
+        else if (!on) { const k = Math.floor((t - at) * 6) % 3; st.innerHTML = 'connecting' + '<span class="d"></span>'.repeat(k + 1); }
+        else st.textContent = 'wired ✓';
+      });
+      this.$['wc-n'].textContent = `${wired}/4`;
+    },
+  },
+  {
+    id: 'analysis', title: 'Analyzing your job', sub: 'scan, verdict per task, share automatable', from: 'agent-dataentry', loop: 8,
+    css: ['analysis'],
+    build(root) {
+      const $ = q(root);
+      this.TASKS = [
+        { n: 'Copy invoice fields into the ERP', s: '61 / wk', tag: 'auto' }, { n: 'Create customers from signup CSV', s: '38 / wk', tag: 'auto' },
+        { n: 'Reconcile mismatched totals', s: '9 / wk', tag: 'keep' }, { n: 'Receive stock and log quantities', s: '44 / wk', tag: 'auto' },
+        { n: 'Approve vendor exceptions', s: '6 / wk', tag: 'keep' }, { n: 'Key in phone orders', s: '31 / wk', tag: 'auto' },
+      ];
+      this.rows = this.TASKS.map((k) => { const r = document.createElement('div'); r.className = 'an-row'; r.innerHTML = `<span class="n">${esc(k.n)}</span><span class="f">${k.s}</span><span class="tag">…</span>`; $['an-rows'].appendChild(r); return r; });
+      this.$ = $;
+    },
+    render(t) {
+      const { $, rows, TASKS } = this, TOTAL = 212, AUTO = 174;
+      const B = { scanA: 0.3, scanB: 1.7, rows: [1.0, 1.35, 1.7, 2.05, 2.4, 2.75], verdict: 0.45, sum: 3.4 };
+      const sc = outCubic(seg(t, B.scanA, B.scanB));
+      $['an-n'].textContent = `${Math.round(sc * TOTAL)} tasks`; $['an-bar'].style.width = `${(sc * 100).toFixed(1)}%`; $['an-pct'].textContent = `${Math.round(sc * 100)}%`;
+      $['an-lab'].textContent = sc >= 1 ? 'activity scanned' : 'watching 2 weeks of activity';
+      rows.forEach((r, i) => {
+        const at = B.rows[i], p = seg(t, at, at + 0.25);
+        r.style.display = t >= at - 0.01 ? '' : 'none'; r.style.opacity = String(p); r.style.transform = `translateY(${((1 - outCubic(p)) * 4).toFixed(1)}px)`;
+        const tag = r.querySelector('.tag'), on = t >= at + B.verdict;
+        tag.className = 'tag' + (on ? ' ' + TASKS[i].tag : ''); tag.textContent = on ? (TASKS[i].tag === 'auto' ? 'automate' : 'keep') : 'scanning';
+      });
+      const sp = seg(t, B.sum, B.sum + 0.5);
+      $['an-sum'].style.opacity = String(clamp01(sp * 2)); $['an-sum'].style.display = t >= B.sum - 0.01 ? '' : 'none';
+      $['an-auto'].textContent = String(Math.round(outCubic(sp) * AUTO)); $['an-tot'].textContent = String(TOTAL);
+      $['an-share'].textContent = `${Math.round(outCubic(sp) * 100 * AUTO / TOTAL)}% automatable`; $['an-sbar'].style.width = `${(outCubic(sp) * 100 * AUTO / TOTAL).toFixed(1)}%`;
+    },
+  },
+  {
+    id: 'status-mail', title: 'Status card · replying', sub: 'the bottom-right card in the Gmail scene', from: 'agent-workspace', loop: 6, css: ['agent'],
+    build(root) { this.$ = q(root); },
+    render(t) { const done = Math.min(4, Math.floor(seg(t, 0.8, 4.8) * 4 + 0.0001)); this.$.n.textContent = `${done} / 4`; this.$.bar.style.width = `${(100 * done / 4).toFixed(0)}%`; },
+  },
+  {
+    id: 'status-calls', title: 'Status card · on the line', sub: 'the bottom-right card in the support desk scene', from: 'agent-voice', loop: 6, css: ['agent'],
+    build(root) { this.$ = q(root); },
+    render(t) { const n = Math.min(2, Math.floor(seg(t, 0.8, 4.8) * 2 + 0.0001)); this.$.n.textContent = `${n} call${n === 1 ? '' : 's'}`; },
+  },
+  {
+    id: 'status-records', title: 'Status card · entering records', sub: 'the bottom-right card in the ERP scene', from: 'agent-dataentry', loop: 7.5, css: ['agent'],
+    build(root) { this.$ = q(root); },
+    render(t) {
+      const el = Math.max(0.001, t - 0.6), fields = Math.min(44, Math.floor(Math.max(0, t - 0.6) * 6.9)), saved = Math.min(6, Math.floor(fields / 7.4));
+      this.$.n.textContent = `${saved} record${saved === 1 ? '' : 's'}`; this.$.f.textContent = `${fields} fields`; this.$.r.textContent = `${t > 1.1 ? Math.round(fields / el * 60) : 0} fields / min`;
+    },
+  },
+];
+
+// ---------- the page: a tile per component, each on its own loop clock with a replay and a source view ----------
+const CSS_BLOCKS = {};
+for (const m of document.querySelector('style').textContent.matchAll(/\/\* ---------- ([^\n]*?) ---------- \*\/\n([\s\S]*?)(?=\n\/\* ---------- |$)/g)) CSS_BLOCKS[m[1]] = m[2].trim();
+const cssFor = (keys) => ['the hub\'s own message + card rules (hub-boot-3.css), the base every widget sits on', ...keys.map((k) => ({ voice: 'voice sample + wiring (agent-voice-superbot-59d77e34)', analysis: 'job analysis (agent-dataentry-superbot-59d77e34)', agent: Object.keys(CSS_BLOCKS).find((n) => n.startsWith('the superbot status card')) }[k]))].map((n) => `/* ${n} */\n${CSS_BLOCKS[n] || ''}`).join('\n\n');
+const grid = document.getElementById('grid');
+for (const c of COMPONENTS) {
+  const tile = document.createElement('section'); tile.className = 'tile';
+  tile.innerHTML = `<div class="th"><b>${c.title}</b><small>${c.sub}</small><span class="from">${c.from}</span></div><div class="stage"></div><div class="tf"><button class="btn" data-act="replay">Replay</button><button class="btn" data-act="src">Source</button><span class="t">0.0s</span></div><div class="src"><div class="tabs"><span class="on" data-tab="html">HTML</span><span data-tab="css">CSS</span><span data-tab="js">render(t)</span></div><pre></pre></div>`;
+  const tpl = document.getElementById('tpl-' + c.id).content.cloneNode(true);
+  const stage = tile.querySelector('.stage'); stage.appendChild(tpl);
+  const root = stage.firstElementChild;
+  const html = root.outerHTML.replace(/ data-el="/g, ' id="');
+  c.build(root);
+  const src = { html, css: cssFor(c.css), js: c.render.toString() + (c.build ? '\n\n// build(root), run once:\n' + c.build.toString() : '') };
+  const pre = tile.querySelector('pre'), tabs = [...tile.querySelectorAll('.tabs span')];
+  const showTab = (k) => { tabs.forEach((s) => s.classList.toggle('on', s.dataset.tab === k)); pre.textContent = src[k]; };
+  showTab('html');
+  tabs.forEach((s) => s.addEventListener('click', () => showTab(s.dataset.tab)));
+  tile.querySelector('[data-act="src"]').addEventListener('click', (e) => { tile.querySelector('.src').classList.toggle('on'); e.currentTarget.classList.toggle('on'); });
+  let t0 = performance.now();
+  tile.querySelector('[data-act="replay"]').addEventListener('click', () => { t0 = performance.now(); });
+  const clock = tile.querySelector('.t');
+  const frame = (now) => { const t = ((now - t0) / 1000) % c.loop; c.render(t); clock.textContent = `${t.toFixed(1)}s / ${c.loop}s`; requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
+  grid.appendChild(tile);
+}
+</script>
+</body>
+</html>
