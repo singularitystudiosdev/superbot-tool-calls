@@ -128,71 +128,13 @@ a { color: inherit; }
 .agent .bar { margin-top: 12px; height: 6px; border-radius: 3px; background: #262626; overflow: hidden; }
 .agent .bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--storm-x); }
 .agent .p-sub { margin-top: 6px; font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
-/* ---------- the second set: research, terminal, scheduling, spreadsheet, invoices, pull request, approval ---------- */
-.tc-row { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 8px; height: 19px; opacity: 0; }
-.tc-row .n { color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tc-row .n small { color: var(--muted); margin-left: 4px; font-size: .91em; }
-.tc-row .st { font-size: .82em; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; min-width: 52px; }
-.tc-row .st.ok { color: var(--ok); } .tc-row .st.warn { color: var(--warn); }
-.tc-ic { width: 16px; height: 16px; border-radius: 4px; display: grid; place-items: center; font: 700 8px/16px var(--ui); color: #fff; }
-.tc-ic.dot { border-radius: 50%; width: 8px; height: 8px; margin: 0 4px; }
-.tc-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 6px; padding-top: 7px; border-top: 1px solid var(--line); color: var(--muted); font-size: .91em; opacity: 0; }
-.tc-sum b { color: var(--fg); font-weight: 600; }
-.tc-bar { height: 4px; border-radius: 2px; background: var(--raised); overflow: hidden; margin-top: 6px; }
-.tc-bar i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--storm-x); }
-/* research: sources with a favicon dot, fetched → read */
-.rs-row .st .d { display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: var(--muted); margin-left: 2px; }
-/* terminal: a mono log inside the card */
-.tm-log { margin: 4px 0 0; padding: 6px 8px; border-radius: 4px; background: #000; border: 1px solid var(--line); font: .91em/14px var(--font-mono); color: var(--secondary); min-height: 62px; white-space: pre; overflow: hidden; }
-.tm-log .ln { display: block; opacity: 0; }
-.tm-log .p { color: var(--accent); } .tm-log .ok { color: var(--ok); } .tm-log .dim { color: var(--muted); }
-.tm-log .cur { display: inline-block; width: 6px; height: 11px; background: var(--fg); vertical-align: -2px; }
-.tm-foot { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: .91em; color: var(--muted); }
-.tm-foot .chip { padding: 0 5px; border-radius: 3px; font: 600 .91em/14px var(--font-mono); background: var(--raised); color: var(--muted); border: 1px solid var(--line); }
-.tm-foot .chip.ok { color: var(--ok); border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.1); }
-/* scheduling: slots, one picked */
-.sc-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 2px; }
-.sc-slot { height: 22px; border-radius: 4px; border: 1px solid var(--line); background: var(--raised); display: grid; place-items: center; font: 500 .91em/1 var(--font-mono); color: var(--muted); opacity: 0; position: relative; }
-.sc-slot.busy { color: var(--muted); text-decoration: line-through; opacity: .45 !important; }
-.sc-slot.pick { border-color: var(--accent); color: var(--fg); background: rgba(43,107,255,.14); }
-.sc-slot.pick::after { content: "✓"; position: absolute; right: 3px; top: 1px; font-size: 8px; color: var(--accent); }
-.sc-line { display: flex; align-items: center; gap: 6px; margin-top: 7px; color: var(--secondary); opacity: 0; }
-.sc-line .av { width: 14px; height: 14px; border-radius: 50%; background: #1e8e3e; color: #fff; font: 700 8px/14px var(--ui); text-align: center; }
-.sc-line b { color: var(--fg); font-weight: 600; }
-/* spreadsheet: a mini grid, rows fixed in place */
-.ss-grid { margin-top: 2px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; font: .85em/14px var(--font-mono); }
-.ss-r { display: grid; grid-template-columns: 22px 1fr 66px 62px; }
-.ss-r > span { padding: 0 5px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; color: var(--secondary); }
-.ss-r > span:last-child { border-right: 0; }
-.ss-r.h > span { background: var(--raised); color: var(--muted); font-weight: 600; }
-.ss-r .bad { color: #e5484d; background: rgba(229,72,77,.08); }
-.ss-r .fix { color: var(--ok); background: rgba(52,211,153,.08); }
-.ss-r.dup > span { text-decoration: line-through; opacity: .45; }
-.ss-r.gone { display: none; }
-/* invoices: client rows with amounts */
-.iv-row .amt { font: 500 .91em/14px var(--font-mono); color: var(--fg); margin-right: 6px; }
-/* pull request: files with findings */
-.pr-row .n code { font: .91em var(--font-mono); color: var(--fg); }
-.pr-row .st b { font-weight: 600; }
-.pr-verdict { display: flex; align-items: center; gap: 6px; margin-top: 6px; padding-top: 7px; border-top: 1px solid var(--line); opacity: 0; }
-.pr-verdict .pill { padding: 0 6px; border-radius: 999px; font: 700 .82em/16px var(--ui); background: rgba(52,211,153,.14); color: var(--ok); }
-.pr-verdict span { color: var(--secondary); }
-/* approval: the human-in-the-loop ask */
-.ap-body { color: var(--secondary); line-height: 14px; margin-top: 1px; }
-.ap-body b { color: var(--fg); font-weight: 600; }
-.ap-quote { margin-top: 5px; padding: 5px 7px; border-left: 2px solid var(--accent); background: var(--raised); border-radius: 0 4px 4px 0; color: var(--secondary); line-height: 14px; }
-.ap-acts { display: flex; gap: 6px; margin-top: 7px; }
-.ap-btn { height: 20px; padding: 0 9px; border-radius: 5px; font: 600 .91em/20px var(--ui); color: var(--fg); background: var(--raised); border: 1px solid var(--line); transform-origin: 50% 50%; position: relative; }
-.ap-btn.go { background: var(--accent); border-color: var(--accent); color: #fff; }
-.ap-btn.done { background: rgba(52,211,153,.14); border-color: var(--ok); color: var(--ok); }
-.ap-timer { margin-left: auto; font: 500 .82em/20px var(--font-mono); color: var(--muted); }
 </style>
 </head>
 <body>
 <header class="page-top">
   <div class="brand"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div>
   <h1>The <span class="grad">tool calls</span>, on their own.</h1>
-  <p>The cards superbot posts in chat while it works. The first six are lifted 1:1 from the three agent ad spots on the <a href="https://singularitystudiosdev.github.io/superbot-ad-gallery/">ad gallery</a>; the rest cover other jobs in the same kit (tagged <b>new</b>). Each one loops live below. Open <b>Source</b> for the exact markup, CSS and the render(t) driver that animates it.</p>
+  <p>The cards superbot posts in chat while it works. Lifted 1:1 from the three agent ad spots on the <a href="https://singularitystudiosdev.github.io/superbot-ad-gallery/">ad gallery</a>. Each one loops live below. Open <b>Source</b> for the exact markup, CSS and the render(t) driver that animates it.</p>
 </header>
 
 <main class="grid" id="grid"></main>
@@ -226,42 +168,6 @@ a { color: inherit; }
 
 <template id="tpl-status-records">
 <div class="agent"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div><div class="p-line"><i></i>entering your records<b data-el="n">0 records</b></div><div class="p-sub"><span data-el="f">0 fields</span><span data-el="r">0 fields / min</span></div></div>
-</template>
-
-<template id="tpl-research">
-<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">10:14 AM</span></div><div class="m-text">Looking that up. I read the sources, you get the answer.</div>
-  <div class="card"><div class="c-head">Researching<small data-el="n">0 sources</small></div><div data-el="rows"></div><div class="tc-sum" data-el="sum"><span><b>3 sources agree</b> · Postgres 17 ships incremental backup</span><span>2.4s</span></div></div>
-</div></div></div>
-</template>
-<template id="tpl-terminal">
-<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">10:20 AM</span></div><div class="m-text">Running the tests before I push.</div>
-  <div class="card"><div class="c-head">Running<small data-el="t">0.0s</small></div><div class="tm-log" data-el="log"></div><div class="tm-foot"><span class="chip" data-el="exit">running</span><span data-el="foot">superbot/app · main</span></div></div>
-</div></div></div>
-</template>
-<template id="tpl-schedule">
-<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">10:31 AM</span></div><div class="m-text">Finding a slot that works for both of you.</div>
-  <div class="card"><div class="c-head">Scheduling<small data-el="n">checking calendars</small></div><div class="sc-slots" data-el="slots"></div><div class="sc-line" data-el="line"><span class="av">M</span><span>Invite sent to <b>Marcus Lee</b> · <b data-el="when">Fri 3:00 PM</b> · 30 min</span></div></div>
-</div></div></div>
-</template>
-<template id="tpl-sheet">
-<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">10:45 AM</span></div><div class="m-text">Cleaning the export before it goes to finance.</div>
-  <div class="card"><div class="c-head">Cleaning your spreadsheet<small data-el="n">1,204 rows</small></div><div class="ss-grid" data-el="grid"></div><div class="tc-sum" data-el="sum"><span><b data-el="dups">0</b> duplicates removed · <b data-el="fixes">0</b> dates fixed</span><span data-el="left">1,204 rows</span></div><div class="tc-bar"><i data-el="bar"></i></div></div>
-</div></div></div>
-</template>
-<template id="tpl-invoices">
-<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">11:02 AM</span></div><div class="m-text">Month end. Sending the invoices that are due.</div>
-  <div class="card"><div class="c-head">Sending invoices<small data-el="n">0 / 4 sent</small></div><div data-el="rows"></div><div class="tc-sum" data-el="sum"><span><b data-el="total">$0</b> invoiced</span><span>via Stripe</span></div></div>
-</div></div></div>
-</template>
-<template id="tpl-pr">
-<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">11:18 AM</span></div><div class="m-text">Reviewing the pull request before your standup.</div>
-  <div class="card"><div class="c-head">Reviewing PR #482<small data-el="n">0 / 5 files</small></div><div data-el="rows"></div><div class="pr-verdict" data-el="verdict"><span class="pill">approve</span><span>2 comments left · nothing blocking</span></div></div>
-</div></div></div>
-</template>
-<template id="tpl-approval">
-<div class="lane"><div class="msg"><span class="avatar sb"><img src="assets/mark-clean.svg" alt=""/></span><div class="m-main"><div class="m-head"><span class="m-name">superbot</span><span class="app">APP</span><span class="m-when">11:30 AM</span></div><div class="m-text">One thing needs your OK before I send it.</div>
-  <div class="card"><div class="c-head">Needs your OK<small data-el="st">waiting</small></div><div class="ap-body">Refund <b>$249.00</b> to <b>Sarah Kim</b> for order #48213. Over my $200 limit.</div><div class="ap-quote">“The kit arrived damaged, I'd like a refund rather than a replacement.”</div><div class="ap-acts"><span class="ap-btn go" data-el="go">Approve</span><span class="ap-btn" data-el="edit">Edit</span><span class="ap-timer" data-el="timer">reminds in 2h</span></div></div>
-</div></div></div>
 </template>
 
 <script>
@@ -377,145 +283,12 @@ const COMPONENTS = [
       this.$.n.textContent = `${saved} record${saved === 1 ? '' : 's'}`; this.$.f.textContent = `${fields} fields`; this.$.r.textContent = `${t > 1.1 ? Math.round(fields / el * 60) : 0} fields / min`;
     },
   },
-  {
-    id: 'research', title: 'Researching', sub: 'sources fetched and read, then the answer', from: 'new', loop: 7, css: ['more'],
-    build(root) {
-      const $ = q(root);
-      this.SRC = [{ n: 'postgresql.org', s: 'release notes 17', c: '#336791' }, { n: 'github.com', s: 'postgres/postgres', c: '#8b949e' }, { n: 'news.ycombinator.com', s: 'thread', c: '#ff6600' }];
-      this.rows = this.SRC.map((s) => { const r = document.createElement('div'); r.className = 'tc-row rs-row'; r.innerHTML = `<span class="tc-ic dot" style="background:${s.c}"></span><span class="n">${s.n}<small>${s.s}</small></span><span class="st"></span>`; $.rows.appendChild(r); return r; });
-      this.$ = $;
-    },
-    render(t) {
-      const AT = [0.6, 1.3, 2.0], READ = 1.1; let read = 0;
-      this.rows.forEach((r, i) => {
-        const at = AT[i], p = seg(t, at, at + 0.25), st = r.querySelector('.st'), on = t >= at + READ;
-        r.style.display = t >= at - 0.01 ? '' : 'none'; r.style.opacity = String(p); r.style.transform = `translateY(${((1 - outCubic(p)) * 4).toFixed(1)}px)`;
-        if (on) read++;
-        st.className = 'st' + (on ? ' ok' : '');
-        if (t < at) st.innerHTML = ''; else if (!on) st.innerHTML = 'fetching' + '<span class="d"></span>'.repeat(Math.floor((t - at) * 6) % 3 + 1); else st.textContent = 'read ✓';
-      });
-      this.$.n.textContent = `${read} source${read === 1 ? '' : 's'}`;
-      const s = seg(t, 3.5, 3.9); this.$.sum.style.display = t >= 3.49 ? '' : 'none'; this.$.sum.style.opacity = String(s);
-    },
-  },
-  {
-    id: 'terminal', title: 'Running', sub: 'a command runs inside the card, exit code chip', from: 'new', loop: 8, css: ['more'],
-    build(root) {
-      const $ = q(root);
-      this.LINES = [['p', '$ npm test -- --run'], ['dim', '> app@2.4.1 test'], ['dim', '> vitest run'], ['', ' ✓ rail.test.ts  (12)'], ['', ' ✓ composer.test.ts  (9)'], ['', ' ✓ hub.test.ts  (21)'], ['ok', ' Test Files  3 passed (3)'], ['ok', '      Tests  42 passed (42)']];
-      this.els = this.LINES.map(([cls, tx]) => { const s = document.createElement('span'); s.className = 'ln ' + cls; s.textContent = tx; $.log.appendChild(s); return s; });
-      const cur = document.createElement('span'); cur.className = 'cur'; $.log.appendChild(cur); this.cur = cur; this.$ = $;
-    },
-    render(t) {
-      const AT = [0.5, 0.9, 1.1, 2.0, 2.5, 3.1, 3.8, 4.0], done = t >= 4.2;
-      this.els.forEach((s, i) => { s.style.opacity = t >= AT[i] ? '1' : '0'; s.style.display = t >= AT[i] ? '' : 'none'; });
-      this.cur.style.display = done ? 'none' : ''; this.cur.style.opacity = Math.floor(t * 2) % 2 ? '0' : '1';
-      this.$.t.textContent = `${Math.min(3.7, Math.max(0, t - 0.5)).toFixed(1)}s`;
-      this.$.exit.className = 'chip' + (done ? ' ok' : ''); this.$.exit.textContent = done ? 'exit 0' : 'running';
-    },
-  },
-  {
-    id: 'schedule', title: 'Scheduling', sub: 'slots checked against both calendars, one picked, invite sent', from: 'new', loop: 7, css: ['more'],
-    build(root) {
-      const $ = q(root);
-      this.SLOTS = ['Thu 2:00', 'Thu 3:30', 'Fri 10:00', 'Fri 11:30', 'Fri 1:00', 'Fri 3:00', 'Mon 9:00', 'Mon 4:00'];
-      this.BUSY = [0, 2, 3, 6]; this.PICK = 5;
-      this.els = this.SLOTS.map((s) => { const e = document.createElement('span'); e.className = 'sc-slot'; e.textContent = s; $.slots.appendChild(e); return e; });
-      this.$ = $;
-    },
-    render(t) {
-      const { els, BUSY, PICK, $ } = this;
-      els.forEach((e, i) => {
-        const at = 0.4 + i * 0.12, p = seg(t, at, at + 0.2);
-        e.style.opacity = String(p);
-        e.classList.toggle('busy', BUSY.includes(i) && t >= 1.8 + i * 0.08);
-        e.classList.toggle('pick', i === PICK && t >= 3.0);
-      });
-      $.n.textContent = t < 1.8 ? 'checking calendars' : t < 3.0 ? '4 slots free' : 'booked';
-      const l = seg(t, 3.5, 3.8); $.line.style.display = t >= 3.49 ? '' : 'none'; $.line.style.opacity = String(l);
-    },
-  },
-  {
-    id: 'sheet', title: 'Cleaning your spreadsheet', sub: 'duplicates struck out, bad dates fixed in place', from: 'new', loop: 8, css: ['more'],
-    build(root) {
-      const $ = q(root);
-      this.ROWS = [['#', 'customer', 'date', 'amount'], ['1', 'Northwind Traders', '2026-09-02', '4,120.00'], ['2', 'Lumen Devices', '09/03/26', '860.00'], ['3', 'Northwind Traders', '2026-09-02', '4,120.00'], ['4', 'Studio Rossi', '3 Sep 2026', '1,250.00'], ['5', 'Becker Labs', '2026-09-04', '2,500.00']];
-      this.FIX = { 2: '2026-09-03', 4: '2026-09-03' }; this.DUP = [3];
-      this.els = this.ROWS.map((r, i) => { const e = document.createElement('div'); e.className = 'ss-r' + (i === 0 ? ' h' : ''); e.innerHTML = r.map((c) => `<span>${c}</span>`).join(''); $.grid.appendChild(e); return e; });
-      this.$ = $;
-    },
-    render(t) {
-      const { els, FIX, DUP, $ } = this;
-      const scan = seg(t, 0.4, 3.6);
-      els.forEach((e, i) => {
-        if (i === 0) return;
-        const cells = e.children, on = scan * 5 >= i;
-        const dateCell = cells[2];
-        if (FIX[i]) { const fixed = t >= 1.2 + i * 0.5; dateCell.textContent = fixed ? FIX[i] : this.ROWS[i][2]; dateCell.className = on ? (fixed ? 'fix' : 'bad') : ''; }
-        if (DUP.includes(i)) { e.classList.toggle('dup', t >= 2.6); e.classList.toggle('gone', t >= 4.4); }
-      });
-      const dups = t >= 2.6 ? Math.round(seg(t, 2.6, 3.4) * 38) : 0, fixes = t >= 1.2 ? Math.round(seg(t, 1.2, 3.4) * 12) : 0;
-      $.dups.textContent = String(dups); $.fixes.textContent = String(fixes); $.left.textContent = `${(1204 - dups).toLocaleString()} rows`; $.n.textContent = t < 3.6 ? 'scanning' : 'clean ✓';
-      $.sum.style.opacity = String(seg(t, 0.8, 1.1)); $.bar.style.width = `${(scan * 100).toFixed(1)}%`;
-    },
-  },
-  {
-    id: 'invoices', title: 'Sending invoices', sub: 'each client row goes out, the total climbs', from: 'new', loop: 7, css: ['more'],
-    build(root) {
-      const $ = q(root);
-      this.INV = [{ n: 'Northwind Traders', id: 'INV-10231', amt: 4120, c: '#2b6bff' }, { n: 'Lumen Devices', id: 'INV-10232', amt: 860, c: '#0891b2' }, { n: 'Studio Rossi', id: 'INV-10233', amt: 1250, c: '#7c3aed' }, { n: 'Becker Labs', id: 'INV-10234', amt: 2500, c: '#e37400' }];
-      this.rows = this.INV.map((v) => { const r = document.createElement('div'); r.className = 'tc-row iv-row'; r.innerHTML = `<span class="tc-ic" style="background:${v.c}">${v.n[0]}</span><span class="n">${v.n}<small>${v.id}</small></span><span class="st"><span class="amt">$${v.amt.toLocaleString()}.00</span><span class="s"></span></span>`; $.rows.appendChild(r); return r; });
-      this.$ = $;
-    },
-    render(t) {
-      const AT = [0.6, 1.4, 2.2, 3.0], SEND = 0.6; let sent = 0, total = 0;
-      this.rows.forEach((r, i) => {
-        const at = AT[i], p = seg(t, at, at + 0.25), on = t >= at + SEND, s = r.querySelector('.s'), st = r.querySelector('.st');
-        r.style.display = t >= at - 0.01 ? '' : 'none'; r.style.opacity = String(p); r.style.transform = `translateY(${((1 - outCubic(p)) * 4).toFixed(1)}px)`;
-        if (on) { sent++; total += this.INV[i].amt; }
-        st.className = 'st' + (on ? ' ok' : ''); s.textContent = t < at ? '' : on ? 'sent ✓' : 'sending';
-      });
-      this.$.n.textContent = `${sent} / 4 sent`; this.$.total.textContent = `$${total.toLocaleString()}`;
-      this.$.sum.style.display = t >= 1.19 ? '' : 'none'; this.$.sum.style.opacity = String(seg(t, 1.2, 1.5));
-    },
-  },
-  {
-    id: 'pr', title: 'Reviewing a pull request', sub: 'files read one by one, findings counted, a verdict', from: 'new', loop: 8, css: ['more'],
-    build(root) {
-      const $ = q(root);
-      this.FILES = [{ f: 'src/rail/Rail.tsx', k: 'ok', s: 'clean' }, { f: 'src/rail/pill.css', k: 'ok', s: 'clean' }, { f: 'src/hub/composer.ts', k: 'warn', s: '1 comment' }, { f: 'src/hub/hub.test.ts', k: 'ok', s: 'clean' }, { f: 'src/api/send.ts', k: 'warn', s: '1 comment' }];
-      this.rows = this.FILES.map((x) => { const r = document.createElement('div'); r.className = 'tc-row pr-row'; r.innerHTML = `<span class="tc-ic" style="background:var(--raised);color:var(--muted)">‹›</span><span class="n"><code>${x.f}</code></span><span class="st"></span>`; $.rows.appendChild(r); return r; });
-      this.$ = $;
-    },
-    render(t) {
-      const AT = [0.5, 1.1, 1.7, 2.4, 3.0], READ = 0.5; let done = 0;
-      this.rows.forEach((r, i) => {
-        const at = AT[i], p = seg(t, at, at + 0.25), on = t >= at + READ, st = r.querySelector('.st'), x = this.FILES[i];
-        r.style.display = t >= at - 0.01 ? '' : 'none'; r.style.opacity = String(p); r.style.transform = `translateY(${((1 - outCubic(p)) * 4).toFixed(1)}px)`;
-        if (on) done++;
-        st.className = 'st' + (on ? ' ' + x.k : ''); st.textContent = t < at ? '' : on ? (x.k === 'ok' ? 'clean ✓' : x.s) : 'reading';
-      });
-      this.$.n.textContent = `${done} / 5 files`;
-      this.$.verdict.style.display = t >= 4.09 ? '' : 'none'; this.$.verdict.style.opacity = String(seg(t, 4.1, 4.4));
-    },
-  },
-  {
-    id: 'approval', title: 'Needs your OK', sub: 'human in the loop: the ask, the evidence, one tap', from: 'new', loop: 7, css: ['more'],
-    build(root) { this.$ = q(root); },
-    render(t) {
-      const press = t >= 3.6 && t < 3.8 ? 1 : 0, ok = t >= 3.8;
-      this.$.go.style.transform = `scale(${(1 - 0.08 * press).toFixed(3)})`;
-      this.$.go.className = 'ap-btn' + (ok ? ' done' : ' go'); this.$.go.textContent = ok ? 'Approved ✓' : 'Approve';
-      this.$.edit.style.opacity = ok ? '.4' : '1';
-      this.$.st.textContent = ok ? 'refund sent' : 'waiting'; this.$.timer.textContent = ok ? 'done in 0.4s' : 'reminds in 2h';
-    },
-  },
 ];
 
 // ---------- the page: a tile per component, each on its own loop clock with a replay and a source view ----------
 const CSS_BLOCKS = {};
 for (const m of document.querySelector('style').textContent.matchAll(/\/\* ---------- ([^\n]*?) ---------- \*\/\n([\s\S]*?)(?=\n\/\* ---------- |$)/g)) CSS_BLOCKS[m[1]] = m[2].trim();
-const cssFor = (keys) => ['the hub\'s own message + card rules (hub-boot-3.css), the base every widget sits on', ...keys.map((k) => ({ voice: 'voice sample + wiring (agent-voice-superbot-59d77e34)', analysis: 'job analysis (agent-dataentry-superbot-59d77e34)', agent: Object.keys(CSS_BLOCKS).find((n) => n.startsWith('the superbot status card')), more: Object.keys(CSS_BLOCKS).find((n) => n.startsWith('the second set')) }[k]))].map((n) => `/* ${n} */\n${CSS_BLOCKS[n] || ''}`).join('\n\n');
+const cssFor = (keys) => ['the hub\'s own message + card rules (hub-boot-3.css), the base every widget sits on', ...keys.map((k) => ({ voice: 'voice sample + wiring (agent-voice-superbot-59d77e34)', analysis: 'job analysis (agent-dataentry-superbot-59d77e34)', agent: Object.keys(CSS_BLOCKS).find((n) => n.startsWith('the superbot status card')) }[k]))].map((n) => `/* ${n} */\n${CSS_BLOCKS[n] || ''}`).join('\n\n');
 const grid = document.getElementById('grid');
 for (const c of COMPONENTS) {
   const tile = document.createElement('section'); tile.className = 'tile'; tile.dataset.id = c.id;
