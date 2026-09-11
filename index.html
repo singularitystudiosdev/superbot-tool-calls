@@ -138,8 +138,6 @@ a { color: inherit; }
 .popup::before { content: none; position: absolute; inset: -3px; border-radius: inherit; z-index: -1; pointer-events: none; }
 /* F soft glow: a light storm halo, still */
 .popup.v-glow { box-shadow: 0 0 28px rgba(43,107,255,.32), 0 0 56px rgba(192,38,211,.22), 0 30px 70px rgba(0,0,0,.5); }
-/* G halo: the ring itself blurred behind the card */
-.popup.v-halo::before { content: ""; background: var(--storm); filter: blur(22px); opacity: .55; }
 @media (prefers-reduced-motion: reduce) { .popup, .popup::before { animation: none !important; } }
 /* ---------- Prompt it: the live slot at the screen's bottom-right, like the ad ---------- */
 .prompt-row { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
@@ -198,7 +196,6 @@ a { color: inherit; }
 </template>
 
 <template id="tpl-status-cando-glow"><div class="popup v-glow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-halo"><div class="popup v-halo"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
 <script>
 // ---------- helpers, verbatim from the ads' render loops ----------
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -330,18 +327,21 @@ const ENTRANCES = {
   spring: { name: 'Spring', dur: 0.85, at: (p) => { const e = spring(p); return { opacity: Math.min(1, p * 4), transform: `scale(${(0.7 + 0.3 * e).toFixed(3)})` }; } },
   settle: { name: 'Settle from above', dur: 0.45, at: (p) => { const e = outQuintE(p); return { opacity: p, transform: `scale(${(1.15 - 0.15 * e).toFixed(3)})` }; } },
 };
-let ENTRANCE = 'corner';
+let ENTRANCE = 'rise';
+// the exit, shared by every entrance: the card rises 40px and fades over 0.3s
+const EXIT = { dur: 0.3, at: (p) => { const e = 1 - Math.pow(1 - p, 3); return { opacity: 1 - p, transform: `translateY(${(-e * 40).toFixed(1)}px)` }; } };
 const POPUP = {
   build(root) { this.$ = q(root); this.root = root; this.root.style.transformOrigin = '50% 100%'; },
   render(t) {
-    const e = ENTRANCES[ENTRANCE], f = e.at(seg(t, 0.3, 0.3 + e.dur));
+    const e = ENTRANCES[ENTRANCE];
+    const f = t < 3.8 ? e.at(seg(t, 0.3, 0.3 + e.dur)) : EXIT.at(seg(t, 3.8, 3.8 + EXIT.dur)); // in at 0.3, the press at 3.2, out at 3.8
     this.root.style.opacity = String(clamp01(f.opacity)); this.root.style.transform = f.transform;
     const press = t >= 3.2 && t < 3.35 ? 1 : t >= 3.35 ? 1 - seg(t, 3.35, 3.53) : 0;
     this.$.btn.style.transform = `scale(${(1 - 0.05 * press).toFixed(3)})`;
   },
 };
-for (const [k, title, sub] of [['glow', 'superbot can do it! · soft glow', 'a light storm halo around the card'], ['halo', 'superbot can do it! · halo', 'the ring itself blurred behind the card']])
-  COMPONENTS.push({ id: 'status-cando-' + k, title, sub, from: 'gpt-refusal', loop: 5, css: ['popup'], build: POPUP.build, render: POPUP.render });
+for (const [k, title, sub] of [['glow', 'superbot can do it! · soft glow', 'rises in, the chat press, rises out']])
+  COMPONENTS.push({ id: 'status-cando-' + k, title, sub, from: 'gpt-refusal', loop: 4.6, css: ['popup'], build: POPUP.build, render: POPUP.render });
 
 // ---------- the page: a tile per component, each on its own loop clock with a replay and a source view ----------
 const CSS_BLOCKS = {};
@@ -381,7 +381,8 @@ function dismiss(then) {
   const card = live.firstElementChild;
   if (!card) { then && then(); return; }
   liveAnim?.cancel();
-  const a = card.animate([{ opacity: 1, transform: 'translate(0,0) scale(1)' }, { opacity: 0, transform: 'translate(20px, 40px) scale(.94)' }], { duration: 220, easing: 'ease-in', fill: 'forwards' });
+  const frames = []; for (let i = 0; i <= 12; i++) { const f = EXIT.at(i / 12); frames.push({ opacity: clamp01(f.opacity), transform: f.transform }); }
+  const a = card.animate(frames, { duration: EXIT.dur * 1000, easing: 'linear', fill: 'forwards' });
   a.finished.then(() => { live.innerHTML = ''; live.classList.remove('on'); then && then(); }).catch(() => {});
 }
 function promptIt(id) {
@@ -402,6 +403,7 @@ function promptIt(id) {
 }
 const animPick = document.getElementById('prompt-anim');
 for (const k in ENTRANCES) { const o = document.createElement('option'); o.value = k; o.textContent = ENTRANCES[k].name; animPick.appendChild(o); }
+animPick.value = ENTRANCE;
 animPick.addEventListener('change', () => { ENTRANCE = animPick.value; if (live.classList.contains('on')) promptIt(pick.value); });
 document.getElementById('prompt-go').addEventListener('click', () => promptIt(pick.value));
 pick.addEventListener('change', () => { if (live.classList.contains('on')) promptIt(pick.value); });
