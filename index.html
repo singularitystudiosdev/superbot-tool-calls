@@ -148,6 +148,26 @@ a { color: inherit; }
 .popup.v-compact .p-head { font-size: 20px; gap: 8px; }
 .popup.v-compact .p-head img { width: 22px; height: 22px; }
 .popup.v-compact .chatbtn { margin-top: 9px; padding: 7px 14px; border-radius: 10px; font-size: 15px; }
+/* glow and motion variants on the hug card: the stroke is the storm ring; the glow is the same ring blurred behind it */
+@property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+.popup { isolation: isolate; }
+.popup::before { content: none; position: absolute; inset: -3px; border-radius: inherit; z-index: -1; pointer-events: none; }
+/* F soft glow: a light storm halo, still */
+.popup.v-glow { box-shadow: 0 0 28px rgba(43,107,255,.32), 0 0 56px rgba(192,38,211,.22), 0 30px 70px rgba(0,0,0,.5); }
+/* G halo: the ring itself blurred behind the card */
+.popup.v-halo::before { content: ""; background: var(--storm); filter: blur(22px); opacity: .55; }
+/* H outline spin: the ring is a conic sweep that turns */
+.popup.v-spin, .popup.v-spinglow { background: linear-gradient(#000, #000) padding-box, conic-gradient(from var(--ang), var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)) border-box; animation: popup-spin 4s linear infinite; }
+@keyframes popup-spin { to { --ang: 360deg; } }
+/* I outline flow: the ring's colours slide along the stroke */
+.popup.v-flow, .popup.v-flowglow { background: linear-gradient(#000, #000) padding-box, linear-gradient(90deg, var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)) border-box; background-size: auto, 300% 100%; animation: popup-flow 3s linear infinite; }
+@keyframes popup-flow { to { background-position: 0 0, -300% 0; } }
+/* J outline + glow spin: the blurred ring turns with the stroke */
+.popup.v-spinglow::before { content: ""; background: conic-gradient(from var(--ang), var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)); filter: blur(22px); opacity: .6; animation: popup-spin 4s linear infinite; }
+/* K outline flow + glow breathe: the stroke flows, the halo breathes */
+.popup.v-flowglow::before { content: ""; background: linear-gradient(90deg, var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)); background-size: 300% 100%; filter: blur(24px); animation: popup-flow 3s linear infinite, popup-breathe 2.4s ease-in-out infinite; }
+@keyframes popup-breathe { 0%, 100% { opacity: .3; } 50% { opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { .popup, .popup::before { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -197,6 +217,12 @@ a { color: inherit; }
 <template id="tpl-status-cando-tight"><div class="popup v-tight"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
 <template id="tpl-status-cando-roomy"><div class="popup v-roomy"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
 <template id="tpl-status-cando-compact"><div class="popup v-compact"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
+<template id="tpl-status-cando-glow"><div class="popup v-glow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
+<template id="tpl-status-cando-halo"><div class="popup v-halo"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
+<template id="tpl-status-cando-spin"><div class="popup v-spin"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
+<template id="tpl-status-cando-flow"><div class="popup v-flow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
+<template id="tpl-status-cando-spinglow"><div class="popup v-spinglow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
+<template id="tpl-status-cando-flowglow"><div class="popup v-flowglow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
 <script>
 // ---------- helpers, verbatim from the ads' render loops ----------
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -325,7 +351,7 @@ const COMPONENTS = [
 ];
 // the four other fits of the same card: same driver as A, one class each
 const CANDO = COMPONENTS.find((c) => c.id === 'status-cando');
-for (const [k, title, sub] of [['pill', 'superbot can do it! · B pill', 'same hug, the button a full-width pill'], ['tight', 'superbot can do it! · C tight', '12px inset, 24px headline, 18px button'], ['roomy', 'superbot can do it! · D roomy', '24px inset, the ad\'s 29px headline and 24px button'], ['compact', 'superbot can do it! · E compact', '12x14 inset, 20px headline, 15px button']])
+for (const [k, title, sub] of [['pill', 'superbot can do it! · B pill', 'same hug, the button a full-width pill'], ['tight', 'superbot can do it! · C tight', '12px inset, 24px headline, 18px button'], ['roomy', 'superbot can do it! · D roomy', '24px inset, the ad\'s 29px headline and 24px button'], ['compact', 'superbot can do it! · E compact', '12x14 inset, 20px headline, 15px button'], ['glow', 'superbot can do it! · F soft glow', 'A, with a light storm halo'], ['halo', 'superbot can do it! · G halo', 'A, the ring itself blurred behind the card'], ['spin', 'superbot can do it! · H outline spin', 'the ring is a conic sweep that turns'], ['flow', 'superbot can do it! · I outline flow', 'the ring\'s colours slide along the stroke'], ['spinglow', 'superbot can do it! · J outline + glow spin', 'the blurred ring turns with the stroke'], ['flowglow', 'superbot can do it! · K outline flow + glow breathe', 'the stroke flows, the halo breathes']])
   COMPONENTS.push({ id: 'status-cando-' + k, title, sub, from: 'gpt-refusal', loop: 5, css: ['popup'], build: CANDO.build, render: CANDO.render });
 
 // ---------- the page: a tile per component, each on its own loop clock with a replay and a source view ----------
