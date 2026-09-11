@@ -133,40 +133,13 @@ a { color: inherit; }
 .popup .p-head { display: flex; align-items: center; justify-content: flex-start; gap: 12px; white-space: nowrap; font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
 .popup .p-head img { width: 30px; height: 30px; }
 .popup .chatbtn { position: relative; margin: 14px 0 0; display: block; width: 100%; padding: 11px 18px; border-radius: 14px; background: #fff; color: #000; font-size: 20px; font-weight: 700; text-align: center; transform-origin: 50% 50%; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
-/* the variants: same card, different fit of the button and the inset */
-.popup.v-pill { padding: 18px; border-radius: 26px; }
-.popup.v-pill .chatbtn { border-radius: 999px; padding: 12px 18px; }
-.popup.v-tight { padding: 12px; border-radius: 18px; }
-.popup.v-tight .p-head { font-size: 24px; gap: 10px; }
-.popup.v-tight .p-head img { width: 28px; height: 28px; }
-.popup.v-tight .chatbtn { margin-top: 10px; padding: 9px 16px; border-radius: 12px; font-size: 18px; }
-.popup.v-roomy { padding: 24px; border-radius: 26px; }
-.popup.v-roomy .p-head { font-size: 29px; gap: 14px; }
-.popup.v-roomy .p-head img { width: 34px; height: 34px; }
-.popup.v-roomy .chatbtn { margin-top: 18px; padding: 14px 18px; border-radius: 18px; font-size: 24px; }
-.popup.v-compact { padding: 12px 14px; border-radius: 16px; }
-.popup.v-compact .p-head { font-size: 20px; gap: 8px; }
-.popup.v-compact .p-head img { width: 22px; height: 22px; }
-.popup.v-compact .chatbtn { margin-top: 9px; padding: 7px 14px; border-radius: 10px; font-size: 15px; }
-/* glow and motion variants on the hug card: the stroke is the storm ring; the glow is the same ring blurred behind it */
-@property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+/* glow variants on the hug card: the stroke is the storm ring; the glow is the same ring blurred behind it */
 .popup { isolation: isolate; }
 .popup::before { content: none; position: absolute; inset: -3px; border-radius: inherit; z-index: -1; pointer-events: none; }
 /* F soft glow: a light storm halo, still */
 .popup.v-glow { box-shadow: 0 0 28px rgba(43,107,255,.32), 0 0 56px rgba(192,38,211,.22), 0 30px 70px rgba(0,0,0,.5); }
 /* G halo: the ring itself blurred behind the card */
 .popup.v-halo::before { content: ""; background: var(--storm); filter: blur(22px); opacity: .55; }
-/* H outline spin: the ring is a conic sweep that turns */
-.popup.v-spin, .popup.v-spinglow { background: linear-gradient(#000, #000) padding-box, conic-gradient(from var(--ang), var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)) border-box; animation: popup-spin 4s linear infinite; }
-@keyframes popup-spin { to { --ang: 360deg; } }
-/* I outline flow: the ring's colours slide along the stroke */
-.popup.v-flow, .popup.v-flowglow { background: linear-gradient(#000, #000) padding-box, linear-gradient(90deg, var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)) border-box; background-size: auto, 300% 100%; animation: popup-flow 3s linear infinite; }
-@keyframes popup-flow { to { background-position: 0 0, -300% 0; } }
-/* J outline + glow spin: the blurred ring turns with the stroke */
-.popup.v-spinglow::before { content: ""; background: conic-gradient(from var(--ang), var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)); filter: blur(22px); opacity: .6; animation: popup-spin 4s linear infinite; }
-/* K outline flow + glow breathe: the stroke flows, the halo breathes */
-.popup.v-flowglow::before { content: ""; background: linear-gradient(90deg, var(--storm-0), var(--storm-1), var(--storm-2), var(--storm-3), var(--storm-4), var(--storm-0)); background-size: 300% 100%; filter: blur(24px); animation: popup-flow 3s linear infinite, popup-breathe 2.4s ease-in-out infinite; }
-@keyframes popup-breathe { 0%, 100% { opacity: .3; } 50% { opacity: .7; } }
 @media (prefers-reduced-motion: reduce) { .popup, .popup::before { animation: none !important; } }
 /* ---------- Prompt it: the live slot at the screen's bottom-right, like the ad ---------- */
 .prompt-row { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
@@ -186,7 +159,7 @@ a { color: inherit; }
 <header class="page-top">
   <div class="brand"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div>
   <h1>The <span class="grad">tool calls</span>, on their own.</h1>
-  <div class="prompt-row"><button class="btn go" id="prompt-go">Prompt it on screen</button><select id="prompt-pick"></select><small>pops the card in at the bottom-right, like the ad. Its chat button or Esc dismisses it.</small></div>
+  <div class="prompt-row"><button class="btn go" id="prompt-go">Prompt it on screen</button><select id="prompt-pick"></select><select id="prompt-anim" title="entrance"></select><small>pops the card in at the bottom-right with the entrance you pick; the tiles loop the same entrance. Its chat button or Esc dismisses it.</small></div>
   <p>The cards superbot posts in chat while it works. Lifted 1:1 from the three agent ad spots (and the rescue popup from the gpt-refusal spot) on the <a href="https://singularitystudiosdev.github.io/superbot-ad-gallery/">ad gallery</a>. Each one loops live below. Open <b>Source</b> for the exact markup, CSS and the render(t) driver that animates it.</p>
 </header>
 
@@ -224,19 +197,8 @@ a { color: inherit; }
 <div class="agent"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot<span class="gg">.gg</span></div><div class="p-line"><i></i>entering your records<b data-el="n">0 records</b></div><div class="p-sub"><span data-el="f">0 fields</span><span data-el="r">0 fields / min</span></div></div>
 </template>
 
-<template id="tpl-status-cando">
-<div class="popup"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div>
-</template>
-<template id="tpl-status-cando-pill"><div class="popup v-pill"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-tight"><div class="popup v-tight"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-roomy"><div class="popup v-roomy"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-compact"><div class="popup v-compact"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
 <template id="tpl-status-cando-glow"><div class="popup v-glow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
 <template id="tpl-status-cando-halo"><div class="popup v-halo"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-spin"><div class="popup v-spin"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-flow"><div class="popup v-flow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-spinglow"><div class="popup v-spinglow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
-<template id="tpl-status-cando-flowglow"><div class="popup v-flowglow"><div class="p-head"><img src="assets/mark-clean.svg" alt=""/>superbot can do it!</div><div class="chatbtn" data-el="btn">chat</div></div></template>
 <script>
 // ---------- helpers, verbatim from the ads' render loops ----------
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -350,23 +312,36 @@ const COMPONENTS = [
       this.$.n.textContent = `${saved} record${saved === 1 ? '' : 's'}`; this.$.f.textContent = `${fields} fields`; this.$.r.textContent = `${t > 1.1 ? Math.round(fields / el * 60) : 0} fields / min`;
     },
   },
-  {
-    id: 'status-cando', title: 'superbot can do it! · A hug', sub: 'the card hugs the headline, 18px inset, the button spans it', from: 'gpt-refusal', loop: 5, css: ['popup'],
-    build(root) { this.$ = q(root); this.root = root; },
-    render(t) {
-      const outBack = (p) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
-      const lerp = (a, b, p) => a + (b - a) * p;
-      const pp = seg(t, 0.3, 0.75), press = t >= 3.2 && t < 3.35 ? 1 : t >= 3.35 ? 1 - seg(t, 3.35, 3.53) : 0;
-      this.root.style.opacity = String(clamp01(pp * 2));
-      this.root.style.transform = `translateY(${((1 - outBack(pp)) * 24).toFixed(1)}px) scale(${lerp(0.9, 1, outBack(pp)).toFixed(3)})`;
-      this.$.btn.style.transform = `scale(${(1 - 0.05 * press).toFixed(3)})`;
-    },
-  },
 ];
-// the four other fits of the same card: same driver as A, one class each
-const CANDO = COMPONENTS.find((c) => c.id === 'status-cando');
-for (const [k, title, sub] of [['pill', 'superbot can do it! · B pill', 'same hug, the button a full-width pill'], ['tight', 'superbot can do it! · C tight', '12px inset, 24px headline, 18px button'], ['roomy', 'superbot can do it! · D roomy', '24px inset, the ad\'s 29px headline and 24px button'], ['compact', 'superbot can do it! · E compact', '12x14 inset, 20px headline, 15px button'], ['glow', 'superbot can do it! · F soft glow', 'A, with a light storm halo'], ['halo', 'superbot can do it! · G halo', 'A, the ring itself blurred behind the card'], ['spin', 'superbot can do it! · H outline spin', 'the ring is a conic sweep that turns'], ['flow', 'superbot can do it! · I outline flow', 'the ring\'s colours slide along the stroke'], ['spinglow', 'superbot can do it! · J outline + glow spin', 'the blurred ring turns with the stroke'], ['flowglow', 'superbot can do it! · K outline flow + glow breathe', 'the stroke flows, the halo breathes']])
-  COMPONENTS.push({ id: 'status-cando-' + k, title, sub, from: 'gpt-refusal', loop: 5, css: ['popup'], build: CANDO.build, render: CANDO.render });
+
+// ---------- the popup: one driver, an entrance you pick (drives the tiles' loops and the on-screen prompt) ----------
+const outBackE = (p) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+const outQuintE = (p) => 1 - Math.pow(1 - p, 5);
+const bounceOut = (p) => { const n1 = 7.5625, d1 = 2.75; if (p < 1 / d1) return n1 * p * p; if (p < 2 / d1) return n1 * (p -= 1.5 / d1) * p + .75; if (p < 2.5 / d1) return n1 * (p -= 2.25 / d1) * p + .9375; return n1 * (p -= 2.625 / d1) * p + .984375; };
+const spring = (p) => 1 - Math.exp(-6 * p) * Math.cos(11 * p);
+// each entrance: duration in s, and at(p) → { opacity, transform } for p in [0, 1]
+const ENTRANCES = {
+  corner: { name: 'Corner pop (the ad)', dur: 0.45, at: (p) => { const e = outBackE(p); return { opacity: Math.min(1, p * 2), transform: `translate(${((1 - e) * 30).toFixed(1)}px, ${((1 - e) * 60).toFixed(1)}px) scale(${(0.9 + 0.1 * e).toFixed(3)})` }; } },
+  rise: { name: 'Rise', dur: 0.4, at: (p) => { const e = outQuintE(p); return { opacity: p, transform: `translateY(${((1 - e) * 40).toFixed(1)}px)` }; } },
+  slide: { name: 'Slide in from the right', dur: 0.45, at: (p) => { const e = outQuintE(p); return { opacity: Math.min(1, p * 1.5), transform: `translateX(${((1 - e) * 140).toFixed(1)}px)` }; } },
+  scale: { name: 'Scale up', dur: 0.4, at: (p) => { const e = outBackE(p); return { opacity: p, transform: `scale(${(0.6 + 0.4 * e).toFixed(3)})` }; } },
+  drop: { name: 'Drop and bounce', dur: 0.75, at: (p) => { const e = bounceOut(p); return { opacity: Math.min(1, p * 4), transform: `translateY(${((e - 1) * 90).toFixed(1)}px)` }; } },
+  flip: { name: 'Flip up', dur: 0.5, at: (p) => { const e = 1 - Math.pow(1 - p, 3); return { opacity: Math.min(1, p * 2), transform: `perspective(700px) rotateX(${((1 - e) * -70).toFixed(1)}deg)` }; } },
+  spring: { name: 'Spring', dur: 0.85, at: (p) => { const e = spring(p); return { opacity: Math.min(1, p * 4), transform: `scale(${(0.7 + 0.3 * e).toFixed(3)})` }; } },
+  settle: { name: 'Settle from above', dur: 0.45, at: (p) => { const e = outQuintE(p); return { opacity: p, transform: `scale(${(1.15 - 0.15 * e).toFixed(3)})` }; } },
+};
+let ENTRANCE = 'corner';
+const POPUP = {
+  build(root) { this.$ = q(root); this.root = root; this.root.style.transformOrigin = '50% 100%'; },
+  render(t) {
+    const e = ENTRANCES[ENTRANCE], f = e.at(seg(t, 0.3, 0.3 + e.dur));
+    this.root.style.opacity = String(clamp01(f.opacity)); this.root.style.transform = f.transform;
+    const press = t >= 3.2 && t < 3.35 ? 1 : t >= 3.35 ? 1 - seg(t, 3.35, 3.53) : 0;
+    this.$.btn.style.transform = `scale(${(1 - 0.05 * press).toFixed(3)})`;
+  },
+};
+for (const [k, title, sub] of [['glow', 'superbot can do it! · soft glow', 'a light storm halo around the card'], ['halo', 'superbot can do it! · halo', 'the ring itself blurred behind the card']])
+  COMPONENTS.push({ id: 'status-cando-' + k, title, sub, from: 'gpt-refusal', loop: 5, css: ['popup'], build: POPUP.build, render: POPUP.render });
 
 // ---------- the page: a tile per component, each on its own loop clock with a replay and a source view ----------
 const CSS_BLOCKS = {};
@@ -401,7 +376,6 @@ for (const c of COMPONENTS) {
 const live = document.getElementById('live'), pick = document.getElementById('prompt-pick');
 const POPUPS = COMPONENTS.filter((c) => c.id.startsWith('status-cando'));
 POPUPS.forEach((c) => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.title.replace('superbot can do it! · ', ''); pick.appendChild(o); });
-const outBackP = (p) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
 let liveAnim = null;
 function dismiss(then) {
   const card = live.firstElementChild;
@@ -416,15 +390,19 @@ function promptIt(id) {
     const card = document.getElementById('tpl-' + id).content.firstElementChild.cloneNode(true);
     card.querySelectorAll('[data-el]').forEach((el) => { el.id = 'live-' + el.dataset.el; });
     live.appendChild(card); live.classList.add('on');
-    // the ad's pop-in from the corner: outBack over 450ms, 30px/60px in, .9 → 1
-    const frames = []; for (let i = 0; i <= 20; i++) { const p = outBackP(i / 20); frames.push({ opacity: Math.min(1, (i / 20) * 2), transform: `translate(${((1 - p) * 30).toFixed(1)}px, ${((1 - p) * 60).toFixed(1)}px) scale(${(0.9 + 0.1 * p).toFixed(3)})` }); }
-    liveAnim = card.animate(frames, { duration: 450, easing: 'linear', fill: 'forwards' });
+    // the chosen entrance, sampled into keyframes
+    const e = ENTRANCES[ENTRANCE], frames = []; for (let i = 0; i <= 24; i++) { const f = e.at(i / 24); frames.push({ opacity: clamp01(f.opacity), transform: f.transform }); }
+    card.style.transformOrigin = '50% 100%';
+    liveAnim = card.animate(frames, { duration: e.dur * 1000, easing: 'linear', fill: 'forwards' });
     const btn = card.querySelector('.chatbtn');
     btn.addEventListener('click', () => {
       btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(.95)' }, { transform: 'scale(1)' }], { duration: 180, easing: 'ease-out' }).finished.then(() => dismiss()).catch(() => {});
     });
   });
 }
+const animPick = document.getElementById('prompt-anim');
+for (const k in ENTRANCES) { const o = document.createElement('option'); o.value = k; o.textContent = ENTRANCES[k].name; animPick.appendChild(o); }
+animPick.addEventListener('change', () => { ENTRANCE = animPick.value; if (live.classList.contains('on')) promptIt(pick.value); });
 document.getElementById('prompt-go').addEventListener('click', () => promptIt(pick.value));
 pick.addEventListener('change', () => { if (live.classList.contains('on')) promptIt(pick.value); });
 addEventListener('keydown', (e) => { if (e.key === 'Escape') dismiss(); });
